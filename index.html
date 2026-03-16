@@ -3,460 +3,360 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PBAST v2 Encryptor / Decryptor</title>
+  <title>PBAST v2 Encrypt / Decrypt</title>
   <style>
     :root {
-      --bg: #020617;
-      --panel: rgba(15, 23, 42, 0.8);
-      --panel-2: rgba(255, 255, 255, 0.05);
+      --bg: #0b1020;
+      --bg-soft: #121a30;
+      --panel: rgba(255, 255, 255, 0.05);
+      --panel-strong: rgba(255, 255, 255, 0.08);
       --border: rgba(255, 255, 255, 0.1);
-      --text: #e2e8f0;
-      --muted: #94a3b8;
-      --accent: #22d3ee;
-      --accent-dark: #0891b2;
-      --danger: #fb7185;
+      --text: #eef2ff;
+      --muted: #9aa4bf;
+      --accent: #7c9cff;
+      --accent-hover: #94adff;
       --success: #34d399;
-      --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
-      --radius: 24px;
+      --error: #fb7185;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:
-        radial-gradient(circle at top, rgba(34, 211, 238, 0.12), transparent 28%),
-        linear-gradient(180deg, #020617 0%, #0f172a 100%);
-      color: var(--text);
       min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(124, 156, 255, 0.18), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(52, 211, 153, 0.10), transparent 20%),
+        linear-gradient(180deg, #0b1020 0%, #11182d 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
     }
 
-    .container {
-      width: min(1150px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 32px 0 48px;
+    .app {
+      width: min(1200px, 100%);
     }
 
-    .hero,
-    .card,
-    .footer-card {
-      background: var(--panel-2);
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .title-wrap h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .title-wrap p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .key-box {
+      min-width: min(320px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      box-shadow: var(--shadow);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
     }
 
-    .hero {
-      padding: 28px;
-      display: grid;
-      grid-template-columns: 1.6fr 0.9fr;
-      gap: 20px;
-      margin-bottom: 24px;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(34, 211, 238, 0.25);
-      background: rgba(34, 211, 238, 0.12);
-      color: #cffafe;
+    .key-label {
+      display: block;
       font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.04em;
-      margin-bottom: 14px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(28px, 4vw, 42px);
-      line-height: 1.08;
-    }
-
-    .hero p {
-      margin: 14px 0 0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
       color: var(--muted);
-      line-height: 1.7;
-      font-size: 15px;
-      max-width: 720px;
+      margin-bottom: 8px;
     }
 
-    .hero-actions {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      align-content: end;
-    }
-
-    .btn {
-      border: none;
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: rgba(9, 13, 26, 0.8);
+      color: white;
+      border-radius: 16px;
+      padding: 14px 16px;
+      font: inherit;
       outline: none;
-      cursor: pointer;
-      border-radius: 18px;
-      padding: 14px 18px;
+    }
+
+    input:focus, textarea:focus {
+      border-color: rgba(124, 156, 255, 0.55);
+      box-shadow: 0 0 0 3px rgba(124, 156, 255, 0.12);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      min-height: 540px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .panel-header h2 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: var(--panel-strong);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
       font-weight: 700;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
       font-size: 14px;
+      font-weight: 700;
+    }
+
+    .field-title span:last-child {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    textarea {
+      min-height: 280px;
+      resize: vertical;
+      line-height: 1.65;
+    }
+
+    .mono {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      letter-spacing: 0.02em;
+    }
+
+    .actions {
+      margin-top: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 16px;
+      padding: 14px 16px;
+      font: inherit;
+      font-weight: 700;
       transition: transform 0.15s ease, opacity 0.2s ease, background 0.2s ease;
     }
 
-    .btn:hover {
-      transform: translateY(-1px);
-    }
+    button:hover { transform: translateY(-1px); }
 
     .btn-primary {
       background: var(--accent);
-      color: #082f49;
+      color: white;
+      flex: 1;
+      min-width: 140px;
     }
 
-    .btn-primary:hover {
-      background: #67e8f9;
-    }
+    .btn-primary:hover { background: var(--accent-hover); }
 
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.08);
-      color: white;
+      background: var(--panel-strong);
       border: 1px solid var(--border);
+      color: white;
     }
 
     .btn-secondary:hover {
       background: rgba(255, 255, 255, 0.12);
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1.45fr 0.95fr;
-      gap: 24px;
-    }
-
-    .card {
-      padding: 22px;
-    }
-
-    .card h2 {
-      margin: 0;
-      font-size: 20px;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .stack {
-      display: grid;
-      gap: 18px;
-    }
-
-    label {
-      display: block;
-    }
-
-    .label-title {
+    .message {
+      margin-top: 16px;
+      border-radius: 16px;
+      padding: 12px 14px;
       font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: var(--text);
-    }
-
-    textarea,
-    input {
-      width: 100%;
+      display: none;
       border: 1px solid var(--border);
-      background: rgba(2, 6, 23, 0.78);
-      color: white;
-      border-radius: 18px;
-      padding: 14px 16px;
-      font: inherit;
-      outline: none;
-      resize: vertical;
     }
 
-    textarea {
-      min-height: 150px;
-      line-height: 1.6;
+    .message.show { display: block; }
+    .message.success {
+      background: rgba(52, 211, 153, 0.1);
+      border-color: rgba(52, 211, 153, 0.28);
+      color: #bbf7d0;
     }
-
-    textarea:focus,
-    input:focus {
-      border-color: rgba(34, 211, 238, 0.45);
-      box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.08);
-    }
-
-    .meta-row {
-      margin-top: 10px;
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .meta-row button {
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 12px;
-      padding: 0;
-    }
-
-    .meta-row button:hover {
-      color: white;
-    }
-
-    .state-box,
-    .alert,
-    .example-box {
-      margin-top: 14px;
-      border-radius: 18px;
-      padding: 14px 16px;
-      border: 1px solid var(--border);
-      font-size: 14px;
-    }
-
-    .state-box {
-      background: rgba(15, 23, 42, 0.75);
-      color: var(--muted);
-    }
-
-    .alert.error {
+    .message.error {
       background: rgba(251, 113, 133, 0.1);
       border-color: rgba(251, 113, 133, 0.28);
       color: #fecdd3;
     }
 
-    .alert.success {
-      background: rgba(52, 211, 153, 0.1);
-      border-color: rgba(52, 211, 153, 0.25);
-      color: #bbf7d0;
-    }
-
-    .side-stack {
-      display: grid;
-      gap: 20px;
-    }
-
-    .info-list {
-      display: grid;
-      gap: 12px;
-      margin-top: 14px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.7;
-    }
-
-    .info-list strong {
-      color: white;
-    }
-
-    .example-box {
-      background: rgba(2, 6, 23, 0.78);
-      color: var(--muted);
-      line-height: 1.8;
-    }
-
-    .example-box strong {
-      color: white;
-    }
-
-    .footer-card {
-      margin-top: 24px;
-      padding: 18px 20px;
+    .footer-note {
+      margin-top: 16px;
       text-align: center;
       color: var(--muted);
       font-size: 12px;
     }
 
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    @media (max-width: 900px) {
-      .hero,
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-actions {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-
-    @media (max-width: 640px) {
-      .container {
-        width: min(100% - 20px, 100%);
-        padding-top: 20px;
-      }
-
-      .hero,
-      .card,
-      .footer-card {
-        border-radius: 20px;
-      }
-
-      .hero {
-        padding: 20px;
-      }
-
-      .hero-actions {
-        grid-template-columns: 1fr;
-      }
-
-      .card {
-        padding: 18px;
-      }
-
-      .meta-row {
+    @media (max-width: 960px) {
+      body { align-items: flex-start; }
+      .topbar {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
+      }
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .panel {
+        min-height: auto;
       }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <section class="hero">
-      <div>
-        <div class="badge">PBAST v2 Encryptor / Decryptor</div>
-        <h1>Website Enkripsi & Dekripsi PBAST v2</h1>
-        <p>
-          Antarmuka statis yang sederhana, profesional, dan siap di-upload ke GitHub maupun
-          dideploy ke Netlify. Website ini mengenkripsi plaintext menjadi ciphertext HEX dan
-          mendekripsi ciphertext HEX kembali ke plaintext menggunakan algoritma
-          <strong>PBAST v2</strong>.
-        </p>
-      </div>
-      <div class="hero-actions">
-        <button class="btn btn-primary" id="encryptBtn">Encrypt</button>
-        <button class="btn btn-secondary" id="decryptBtn">Decrypt</button>
-        <button class="btn btn-secondary" id="resetBtn">Reset</button>
-      </div>
-    </section>
-
-    <section class="grid">
-      <div class="card">
-        <div class="card-header">
-          <h2>Input & Output</h2>
-          <button class="btn btn-secondary" id="swapBtn" style="padding: 10px 14px; font-size: 12px;">Tukar kolom</button>
-        </div>
-
-        <div class="stack">
-          <label>
-            <div class="label-title">Plaintext</div>
-            <textarea id="plaintext" placeholder="Masukkan plaintext di sini">Kamsis 1</textarea>
-            <div class="meta-row">
-              <span id="plainCount">8 karakter</span>
-              <button type="button" id="copyPlainBtn">Salin plaintext</button>
-            </div>
-          </label>
-
-          <label>
-            <div class="label-title">Ciphertext (HEX)</div>
-            <textarea id="ciphertext" placeholder="Masukkan ciphertext HEX di sini">3565E128FA19F3B1</textarea>
-            <div class="meta-row">
-              <span id="cipherCount">16 digit HEX</span>
-              <button type="button" id="copyCipherBtn">Salin ciphertext</button>
-            </div>
-          </label>
-
-          <label>
-            <div class="label-title">Key</div>
-            <input id="key" type="text" placeholder="Masukkan key" value="carlos" />
-            <div class="state-box" id="statePreview">State awal: 644 mod 256 = 132</div>
-          </label>
-
-          <div id="messageArea"></div>
-        </div>
+  <div class="app">
+    <div class="topbar">
+      <div class="title-wrap">
+        <h1>PBAST v2</h1>
+        <p>Encrypt and decrypt text instantly with a clean two-panel interface.</p>
       </div>
 
-      <div class="side-stack">
-        <div class="card">
-          <h2>Cara Pakai</h2>
-          <div class="info-list">
-            <div>1. Masukkan <strong>plaintext</strong> dan <strong>key</strong>, lalu klik <strong>Encrypt</strong>.</div>
-            <div>2. Masukkan <strong>ciphertext HEX</strong> dan <strong>key</strong>, lalu klik <strong>Decrypt</strong>.</div>
-            <div>3. Ciphertext ditampilkan dalam format <strong>HEX tanpa spasi</strong> agar rapi dan mudah dipakai lagi.</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>Ringkasan Algoritma</h2>
-          <div class="info-list">
-            <div><strong>Prime-based:</strong> menggunakan deret bilangan prima sebagai komponen shift.</div>
-            <div><strong>Avalanche state:</strong> setiap karakter memengaruhi state berikutnya.</div>
-            <div><strong>Bidirectional shift:</strong> posisi ganjil menambah shift, posisi genap mengurangi shift.</div>
-            <div><strong>Output profesional:</strong> hasil akhir dibalik lalu dikonversi ke HEX.</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>Contoh Cepat</h2>
-          <div class="example-box">
-            <div><strong>Plaintext:</strong> Kamsis 1</div>
-            <div><strong>Key:</strong> carlos</div>
-            <div><strong>Ciphertext:</strong> 3565E128FA19F3B1</div>
-          </div>
-        </div>
+      <div class="key-box">
+        <label class="key-label" for="globalKey">Key</label>
+        <input id="globalKey" type="text" value="carlos" placeholder="Masukkan key" />
       </div>
-    </section>
-
-    <div class="footer-card">
-      Dibuat untuk demonstrasi algoritma kriptografi PBAST v2. File ini cukup disimpan sebagai <strong>index.html</strong> lalu bisa langsung di-upload ke GitHub dan dideploy ke Netlify.
     </div>
+
+    <div class="layout">
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Encrypt</h2>
+          <div class="chip">Plaintext → HEX</div>
+        </div>
+
+        <div class="field">
+          <div class="field-title">
+            <span>Plaintext</span>
+            <span id="plainCount">8 karakter</span>
+          </div>
+          <textarea id="plaintextInput" placeholder="Masukkan plaintext">Kamsis 1</textarea>
+        </div>
+
+        <div class="field">
+          <div class="field-title">
+            <span>Ciphertext</span>
+            <span>HEX output</span>
+          </div>
+          <textarea id="encryptOutput" class="mono" placeholder="Hasil enkripsi akan muncul di sini" readonly></textarea>
+        </div>
+
+        <div class="actions">
+          <button class="btn-primary" id="encryptBtn">Encrypt</button>
+          <button class="btn-secondary" id="copyEncryptBtn">Copy Result</button>
+          <button class="btn-secondary" id="clearEncryptBtn">Clear</button>
+        </div>
+
+        <div class="message" id="encryptMessage"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Decrypt</h2>
+          <div class="chip">HEX → Plaintext</div>
+        </div>
+
+        <div class="field">
+          <div class="field-title">
+            <span>Ciphertext</span>
+            <span id="cipherCount">16 digit HEX</span>
+          </div>
+          <textarea id="ciphertextInput" class="mono" placeholder="Masukkan ciphertext HEX">3565E128FA19F3B1</textarea>
+        </div>
+
+        <div class="field">
+          <div class="field-title">
+            <span>Plaintext</span>
+            <span>Decryption result</span>
+          </div>
+          <textarea id="decryptOutput" placeholder="Hasil dekripsi akan muncul di sini" readonly></textarea>
+        </div>
+
+        <div class="actions">
+          <button class="btn-primary" id="decryptBtn">Decrypt</button>
+          <button class="btn-secondary" id="copyDecryptBtn">Copy Result</button>
+          <button class="btn-secondary" id="clearDecryptBtn">Clear</button>
+        </div>
+
+        <div class="message" id="decryptMessage"></div>
+      </section>
+    </div>
+
+    <div class="footer-note">Save as <strong>index.html</strong> and deploy directly to Netlify.</div>
   </div>
 
   <script>
     const PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71];
 
-    const plaintextEl = document.getElementById('plaintext');
-    const ciphertextEl = document.getElementById('ciphertext');
-    const keyEl = document.getElementById('key');
-    const plainCountEl = document.getElementById('plainCount');
-    const cipherCountEl = document.getElementById('cipherCount');
-    const statePreviewEl = document.getElementById('statePreview');
-    const messageArea = document.getElementById('messageArea');
-
-    const removeSpaces = (value) => value.replace(/\s+/g, '');
-
-    function updateCounts() {
-      plainCountEl.textContent = `${plaintextEl.value.length} karakter`;
-      cipherCountEl.textContent = `${removeSpaces(ciphertextEl.value).length} digit HEX`;
-    }
+    const keyEl = document.getElementById('globalKey');
+    const plaintextInput = document.getElementById('plaintextInput');
+    const encryptOutput = document.getElementById('encryptOutput');
+    const ciphertextInput = document.getElementById('ciphertextInput');
+    const decryptOutput = document.getElementById('decryptOutput');
+    const plainCount = document.getElementById('plainCount');
+    const cipherCount = document.getElementById('cipherCount');
+    const encryptMessage = document.getElementById('encryptMessage');
+    const decryptMessage = document.getElementById('decryptMessage');
 
     function sumKeyASCII(key) {
       let sum = 0;
-      for (let i = 0; i < key.length; i++) {
-        sum += key.charCodeAt(i) & 0xff;
-      }
+      for (let i = 0; i < key.length; i++) sum += key.charCodeAt(i) & 0xff;
       return sum;
-    }
-
-    function updateStatePreview() {
-      if (!keyEl.value) {
-        statePreviewEl.textContent = 'State awal: key kosong';
-        return;
-      }
-      const total = sumKeyASCII(keyEl.value);
-      statePreviewEl.textContent = `State awal: ${total} mod 256 = ${total % 256}`;
-    }
-
-    function showMessage(type, text) {
-      messageArea.innerHTML = `<div class="alert ${type}">${text}</div>`;
-      window.clearTimeout(showMessage._timer);
-      showMessage._timer = window.setTimeout(() => {
-        messageArea.innerHTML = '';
-      }, 2200);
     }
 
     function reverseBytes(arr) {
@@ -467,13 +367,15 @@
       return bytes.map((b) => b.toString(16).toUpperCase().padStart(2, '0')).join('');
     }
 
+    function removeSpaces(value) {
+      return value.replace(/\s+/g, '');
+    }
+
     function hexToBytes(hex) {
       const cleaned = removeSpaces(hex);
       if (!cleaned.length) throw new Error('Ciphertext HEX tidak boleh kosong.');
       if (cleaned.length % 2 !== 0) throw new Error('Panjang HEX harus genap.');
-      if (!/^[0-9A-Fa-f]+$/.test(cleaned)) {
-        throw new Error('Ciphertext harus berisi karakter HEX valid (0-9, A-F).');
-      }
+      if (!/^[0-9A-Fa-f]+$/.test(cleaned)) throw new Error('Ciphertext harus berisi HEX valid.');
       const result = [];
       for (let i = 0; i < cleaned.length; i += 2) {
         result.push(parseInt(cleaned.slice(i, i + 2), 16));
@@ -538,70 +440,81 @@
       return plainChars.join('');
     }
 
-    async function copyText(value, successText) {
+    function setMessage(target, type, text) {
+      target.className = `message show ${type}`;
+      target.textContent = text;
+      clearTimeout(target._timer);
+      target._timer = setTimeout(() => {
+        target.className = 'message';
+        target.textContent = '';
+      }, 2200);
+    }
+
+    async function copyText(value, successTarget) {
       try {
         await navigator.clipboard.writeText(value);
-        showMessage('success', successText);
+        setMessage(successTarget, 'success', 'Berhasil disalin.');
       } catch {
-        showMessage('error', 'Gagal menyalin teks.');
+        setMessage(successTarget, 'error', 'Gagal menyalin teks.');
       }
+    }
+
+    function updateCounts() {
+      plainCount.textContent = `${plaintextInput.value.length} karakter`;
+      cipherCount.textContent = `${removeSpaces(ciphertextInput.value).length} digit HEX`;
     }
 
     document.getElementById('encryptBtn').addEventListener('click', () => {
       try {
-        const result = encryptPBASTv2(plaintextEl.value, keyEl.value);
-        ciphertextEl.value = result;
+        const result = encryptPBASTv2(plaintextInput.value, keyEl.value);
+        encryptOutput.value = result;
+        ciphertextInput.value = result;
         updateCounts();
-        showMessage('success', 'Enkripsi berhasil.');
+        setMessage(encryptMessage, 'success', 'Enkripsi berhasil.');
       } catch (err) {
-        showMessage('error', err.message || 'Terjadi kesalahan saat enkripsi.');
+        setMessage(encryptMessage, 'error', err.message || 'Terjadi kesalahan saat enkripsi.');
       }
     });
 
     document.getElementById('decryptBtn').addEventListener('click', () => {
       try {
-        const result = decryptPBASTv2(ciphertextEl.value, keyEl.value);
-        plaintextEl.value = result;
+        const result = decryptPBASTv2(ciphertextInput.value, keyEl.value);
+        decryptOutput.value = result;
+        plaintextInput.value = result;
         updateCounts();
-        showMessage('success', 'Dekripsi berhasil.');
+        setMessage(decryptMessage, 'success', 'Dekripsi berhasil.');
       } catch (err) {
-        showMessage('error', err.message || 'Terjadi kesalahan saat dekripsi.');
+        setMessage(decryptMessage, 'error', err.message || 'Terjadi kesalahan saat dekripsi.');
       }
     });
 
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      plaintextEl.value = 'Kamsis 1';
-      ciphertextEl.value = '3565E128FA19F3B1';
-      keyEl.value = 'carlos';
-      updateCounts();
-      updateStatePreview();
-      messageArea.innerHTML = '';
+    document.getElementById('copyEncryptBtn').addEventListener('click', () => {
+      copyText(encryptOutput.value, encryptMessage);
     });
 
-    document.getElementById('swapBtn').addEventListener('click', () => {
-      const temp = plaintextEl.value;
-      plaintextEl.value = ciphertextEl.value;
-      ciphertextEl.value = temp;
+    document.getElementById('copyDecryptBtn').addEventListener('click', () => {
+      copyText(decryptOutput.value, decryptMessage);
+    });
+
+    document.getElementById('clearEncryptBtn').addEventListener('click', () => {
+      plaintextInput.value = '';
+      encryptOutput.value = '';
       updateCounts();
     });
 
-    document.getElementById('copyPlainBtn').addEventListener('click', () => {
-      copyText(plaintextEl.value, 'Plaintext disalin.');
+    document.getElementById('clearDecryptBtn').addEventListener('click', () => {
+      ciphertextInput.value = '';
+      decryptOutput.value = '';
+      updateCounts();
     });
 
-    document.getElementById('copyCipherBtn').addEventListener('click', () => {
-      copyText(ciphertextEl.value, 'Ciphertext disalin.');
-    });
-
-    keyEl.addEventListener('input', updateStatePreview);
-    plaintextEl.addEventListener('input', updateCounts);
-    ciphertextEl.addEventListener('input', () => {
-      ciphertextEl.value = removeSpaces(ciphertextEl.value).toUpperCase();
+    plaintextInput.addEventListener('input', updateCounts);
+    ciphertextInput.addEventListener('input', () => {
+      ciphertextInput.value = removeSpaces(ciphertextInput.value).toUpperCase();
       updateCounts();
     });
 
     updateCounts();
-    updateStatePreview();
   </script>
 </body>
 </html>
